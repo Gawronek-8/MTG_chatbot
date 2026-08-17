@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: mtg_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: mtg_qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    container_name: mtg_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mtg_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: mtg_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    container_name: mtg_backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.docker
+    depends_on:
+      - postgres
+      - qdrant
+      - minio
+      - ollama
+      - rabbitmq
+    restart: unless-stopped
+
+  celery_worker:
+    build:
+      context: ./backend
+    container_name: mtg_celery_worker
+    command: uv run celery -A src.celery_app.worker worker --loglevel=info
+    env_file:
+      - ./backend/.env.docker
+    depends_on:
+      - postgres
+      - rabbitmq
+      - backend
+    restart: unless-stopped
+
+  celery_beat:
+    build:
+      context: ./backend
+    container_name: mtg_celery_beat
+    command: uv run celery -A src.celery_app.worker beat --loglevel=info
+    env_file:
+      - ./backend/.env.docker
+    depends_on:
+      - postgres
+      - rabbitmq
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: mtg_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  qdrant_data:
+  minio_data:
+  ollama_data:
+  rabbitmq_data:
