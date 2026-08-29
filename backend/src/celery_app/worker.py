@@ -4,7 +4,7 @@ from src.config import settings
 celery_app = Celery(
     "mtg_chatbot",
     broker=settings.rabbitmq_url,
-    backend="rpc://", # Optional: can use postgres or just omit if no result backend needed
+    backend="rpc://", 
 )
 
 celery_app.conf.update(
@@ -15,7 +15,6 @@ celery_app.conf.update(
     enable_utc=True,
 )
 
-# Example task
 @celery_app.task
 def dummy_task():
     return "Task completed"
