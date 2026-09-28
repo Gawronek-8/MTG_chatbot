@@ -8,9 +8,10 @@ class Settings(BaseSettings):
     minio_root_user: str
     minio_root_password: str
     rabbitmq_url: str
-    
     cors_origins: str
-    
+    ollama_embed_model: str
+    ollama_max_tokens: int
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
@@ -21,4 +22,4 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
-settings = Settings()
+settings = Settings() # pyright: ignore
