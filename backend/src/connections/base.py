@@ -24,3 +24,8 @@ class StorageConnection(ABC):
     def upload(self, local_file_path: str, destination_path: str):
         """Uploads a local file to the storage destination."""
         pass
+
+    @abstractmethod
+    def read(self, destination_path: str) -> bytes:
+        """Reads a file from the storage destination and returns its raw bytes."""
+        pass

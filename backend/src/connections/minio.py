@@ -44,3 +44,15 @@ class MinioConnection(StorageConnection):
         if not self.client:
             raise RuntimeError("MinioConnection not initialized. Call setup() first.")
         self.client.fput_object(self.bucket_name, destination_path, local_file_path)
+
+    def read(self, destination_path: str) -> bytes:
+        if not self.client:
+            raise RuntimeError("MinioConnection not initialized. Call setup() first.")
+        response = None
+        try:
+            response = self.client.get_object(self.bucket_name, destination_path)
+            return response.read()
+        finally:
+            if response:
+                response.close()
+                response.release_conn()
