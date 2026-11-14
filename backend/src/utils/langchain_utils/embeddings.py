@@ -1,5 +1,5 @@
 from langchain_ollama import OllamaEmbeddings
-from config import settings
+from src.config import settings
 
 
 

@@ -1,6 +1,7 @@
 from typing import Optional, Generic, TypeVar, overload, Any, List
 from dataclasses import dataclass, field
 from qdrant_client.models import VectorParams, Distance, PayloadSchemaType
+from src.utils.validation import _validate_uuid
 
 T = TypeVar('T')
 
@@ -24,6 +25,14 @@ class QdrantBaseField(Generic[T]):
         return instance.__dict__.get(self.name)
 
     def __set__(self, instance: Any, value: T) -> None:
+        instance.__dict__[self.name] = value
+
+@dataclass
+class QdrantUUIDField(QdrantBaseField[str]):
+    """The point ID (a UUID string). Not part of the payload, so it is never indexed or filtered on."""
+    def __set__(self, instance, value):
+        if value is not None:
+            value = _validate_uuid(value)
         instance.__dict__[self.name] = value
 
 @dataclass
