@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+# Test settings with fake values only, committed so CI and fresh clones can run the tests. Never put real secrets here.
+!.env.test
 
 # Python
 __pycache__/
