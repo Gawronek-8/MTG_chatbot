@@ -80,7 +80,7 @@ class TestSession:
 
         assert stored.id == rule.id
         assert stored.rule_number is None and stored.rule_text is None
-        assert not any(stored.vector)
+        assert stored.vector is None
 
     def test_get_filters_by_payload(self, session: QdrantSession):
         session.put(make_rules(3), create_missing=True)

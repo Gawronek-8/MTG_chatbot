@@ -72,7 +72,7 @@ class QdrantSession[T: QdrantBaseModel]:
         Builds the with_payload / with_vectors arguments for the requested fields.
 
         None returns everything. The id is always returned by Qdrant, so "id" alone fetches
-        neither payload nor vectors. Fields that aren't fetched are left at their defaults.
+        neither payload nor vectors. Fields that aren't fetched are left as None.
         """
         if fields is None:
             return True, True

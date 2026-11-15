@@ -27,11 +27,8 @@ class QdrantBaseModel:
             else:
                 setattr(self, field_name, None)
                 
-        for vec_name, vec_field in vector_fields.items():
-            if vec_name in kwargs:
-                setattr(self, vec_name, kwargs.pop(vec_name))
-            else:
-                setattr(self, vec_name, [0.0] * vec_field.size)
+        for vec_name in vector_fields:
+            setattr(self, vec_name, kwargs.pop(vec_name, None))
                 
         if kwargs:
             raise ValueError(f"Unexpected keyword arguments for {cls.__name__}: {list(kwargs.keys())}")

@@ -23,7 +23,7 @@ class TestQdrantBaseModel:
             make_rule(id=None).to_point()
 
     def test_to_point_refuses_a_vector_that_was_never_set(self):
-        """__init__ fills unset vectors with zeros; storing those would silently pollute search results."""
+        """A point that was never embedded must not be stored, or it would silently pollute search results."""
         rule = Rule(id=RULE_ID, rule_number="100.1", rule_text="Text.")
 
         with pytest.raises(ValueError, match="vector 'vector'"):
